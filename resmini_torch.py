@@ -37,7 +37,6 @@ index_to_label = {0: 'Adults', 1: 'Ages 3-5', 2: 'Ages 7-12'}
 
 def resize_images(single_image_data, target_shape=(95, 79)):
     zoom_factors = (target_shape[0] / single_image_data.shape[0], target_shape[1] / single_image_data.shape[1])
-    #downsampled_data = np.zeros(((single_image_data.shape)[0], target_shape[0], target_shape[1]))
     resized_image = ndi.zoom(single_image_data, zoom_factors, order=1)  # Bilinear interpolation
     return resized_image
 
@@ -48,11 +47,10 @@ class Augmentations:
     def __call__(self, image):
         x_shift = random.randint(-self.max_shift, self.max_shift)
         y_shift = random.randint(-self.max_shift, self.max_shift)
-        shifted_image = tf.affine(image, angle=0, translate=(x_shift, y_shift), scale=1.0, shear=0) # Apply shifts
+        shifted_image = tf.affine(image, angle=0, translate=(x_shift, y_shift), scale=1.0, shear=0) # shift
         flipped_image = tf.hflip(shifted_image) # Random horizontal flip
         return shifted_image, flipped_image
 
-# Use the transform in the dataset
 transform = transforms.Compose([
     transforms.ToTensor(),          
     Augmentations(max_shift=10)     
@@ -264,7 +262,7 @@ model.to(device)
 torch.backends.cudnn.enabled = False
 
 # Training and Validation
-num_epochs = 1
+num_epochs = 200
 for epoch in range(num_epochs):
     train(model, train_loader, criterion, optimizer, epoch)
     validate(model, val_loader, criterion)
